@@ -63,7 +63,8 @@ void merge_image(double stddev, RegionsTree* regions)
         else
         {
             regions->hasChilds = false;
-            merge_regions(&regions->childs[3], &regions->childs[0], stddev);
+            merge_regions(&regions->childs[3], &regions->childs[2], stddev);
+            merge_regions(&regions->childs[3], &regions->childs[1], stddev);
             merge_regions(&regions->childs[0], &regions->childs[1], stddev);
             merge_regions(&regions->childs[0], &regions->childs[2], stddev);
 
@@ -73,8 +74,7 @@ void merge_image(double stddev, RegionsTree* regions)
 
 void split_image(cv::Mat image, double stddev, RegionsTree* regions)
 {
-    if ((image.cols < 3) || (image.rows < 3))
-        return;
+
 
     int height = image.rows;
     int width = image.cols;
@@ -89,7 +89,13 @@ void split_image(cv::Mat image, double stddev, RegionsTree* regions)
         return;
     }
 
+
+
     regions->img = image;
+
+    if ((image.cols < 2) || (image.rows < 2))
+        return;
+
     regions->hasChilds = true;
 
     cv::Mat leftTop = image(cv::Range(0, height / 2), cv::Range(0, width / 2));
@@ -118,7 +124,7 @@ cv::Mat split_and_merge(const cv::Mat& image, double stddev)
     cv::Mat res = image;
 
     split_image(res, stddev, &regions);
-    merge_image(stddev, &regions);
+    //merge_image(stddev, &regions);
     return res;
 }
 } // namespace cvlib
