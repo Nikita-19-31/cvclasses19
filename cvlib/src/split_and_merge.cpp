@@ -53,7 +53,7 @@ void merge_image(double stddev, RegionsTree* regions)
         bool hasAtLeastOneChild = false;
 
         for (int i = 0; i < 4; i++)
-            hasAtLeastOneChild += regions->childs[i].hasChilds;
+            hasAtLeastOneChild |= regions->childs[i].hasChilds;
 
         if (hasAtLeastOneChild)
         {
@@ -124,7 +124,7 @@ cv::Mat split_and_merge(const cv::Mat& image, double stddev)
     cv::Mat res = image;
 
     split_image(res, stddev, &regions);
-    //merge_image(stddev, &regions);
+    merge_image(stddev, &regions);
     return res;
 }
 } // namespace cvlib
