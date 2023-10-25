@@ -39,9 +39,18 @@ class motion_segmentation : public cv::BackgroundSubtractor
     {
         backgroundImage.assign(bg_model_);
     }
+    void setVarThreshold(int threshold);
+    void updateModel(int n);
 
     private:
     cv::Mat bg_model_;
+    cv::Mat min_image;
+    cv::Mat max_image;
+    cv::Mat prev_image;
+    cv::Mat diff_image;
+    cv::Size sizeKernel;
+    int N;
+    int _threshold;
 };
 
 /// \brief FAST corner detection algorithm
