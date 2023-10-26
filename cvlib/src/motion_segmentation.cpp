@@ -20,7 +20,9 @@ void motion_segmentation::apply(cv::InputArray _image, cv::OutputArray _fgmask, 
 {
     if (_image.empty())
         return;
-   cv::Mat image = _image.getMat();
+
+   cv::Mat image;
+   _image.getMat().copyTo(image);
    cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
    _fgmask.assign(image);
    updateModel(60);
@@ -47,9 +49,11 @@ void motion_segmentation::apply(cv::InputArray _image, cv::OutputArray _fgmask, 
 
        }
    }
-   uchar* image_line = diff_image.data;
-   std::sort(image_line, image_line + image.cols * image.rows);
-   double d_nu = image_line[image.cols * image.rows / 2] / 5;
+
+   std::vector<uchar> image_line;
+   diff_image.reshape(0,1).copyTo(image_line);
+   std::sort(image_line.begin(), image_line.end());
+   uchar d_nu = image_line[image_line.size() / 2] / 5;
 
    for (int i = 0; i < image.rows; i++)
    {
