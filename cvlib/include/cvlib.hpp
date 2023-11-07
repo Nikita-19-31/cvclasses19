@@ -61,7 +61,7 @@ class corner_detector_fast : public cv::Feature2D
     static cv::Ptr<corner_detector_fast> create();
 
     /// \see Feature2d::detect
-    virtual void detect(cv::InputArray image, CV_OUT std::vector<cv::KeyPoint>& keypoints, cv::InputArray mask = cv::noArray()) override;
+    virtual void detect(cv::InputArray _image, CV_OUT std::vector<cv::KeyPoint>& keypoints, cv::InputArray mask = cv::noArray()) override;
 
     /// \see Feature2d::compute
     virtual void compute(cv::InputArray image, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors) override;
@@ -75,6 +75,21 @@ class corner_detector_fast : public cv::Feature2D
     {
         return "FAST_Binary";
     }
+
+    bool checkPixel(cv::Mat& image, int i, int j, int N, int t);
+    bool checkMaxLenSeqPix(std::vector<int> seq, int N);
+
+    std::vector<cv::Point> _pixelsAround = {
+        cv::Point(0, -3), cv::Point(1, -3) , cv::Point(2, -2) , cv::Point(3, -1) ,
+        cv::Point(3, 0) , cv::Point(3, 1)  , cv::Point(2, 2)  , cv::Point(1, 3)  ,
+        cv::Point(0, 3) , cv::Point(-1, 3) , cv::Point(-2, 2) , cv::Point(-3, 1) ,
+        cv::Point(-3, 0), cv::Point(-3, -1), cv::Point(-2, -2), cv::Point(-1, -3)
+     };
+
+    std::vector<int>  _initialVerify = {1, 5, 9, 13};
+    std::vector<int>  _secondaryVerify = {2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16};
+    int radius = 3;
+
 };
 
 /// \brief Descriptor matched based on ratio of SSD
