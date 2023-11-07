@@ -16,10 +16,89 @@ cv::Ptr<corner_detector_fast> corner_detector_fast::create()
     return cv::makePtr<corner_detector_fast>();
 }
 
-void corner_detector_fast::detect(cv::InputArray image, CV_OUT std::vector<cv::KeyPoint>& keypoints, cv::InputArray /*mask = cv::noArray()*/)
+bool corner_detector_fast::checkPixel(cv::Mat &image, int i, int j, int N, int t)
+{
+    std::vector<int> _successVerify = std::vector<int>(16, -255);
+    int count_black = 0;
+    int count_white = 0;
+
+    for (auto firstIndex : _initialVerify)
+    {
+
+        if (image.at<uchar>(cv::Point(j, i) + _pixelsAround[firstIndex - 1]) > image.at<uchar>(i, j) + t)
+        {
+            count_white++;
+            _successVerify[firstIndex - 1] = 255;
+        }
+        else if (image.at<uchar>(cv::Point(j, i) + _pixelsAround[firstIndex - 1]) < image.at<uchar>(i, j) - t)
+        {
+            count_black++;
+            _successVerify[firstIndex - 1] = 0;
+        }
+    }
+
+    if ((count_black >= radius) || (count_white >= radius))
+    {
+        for (auto secondIndex : _secondaryVerify)
+        {
+            if (image.at<uchar>(cv::Point(j, i) + _pixelsAround[secondIndex - 1]) > image.at<uchar>(i, j) + t)
+            {
+                _successVerify[secondIndex - 1] = 255;
+            }
+            else if (image.at<uchar>(cv::Point(j, i) + _pixelsAround[secondIndex - 1]) < image.at<uchar>(i, j) - t)
+            {
+                _successVerify[secondIndex - 1] = 0;
+            }
+        }
+
+        if (checkMaxLenSeqPix(_successVerify, N))
+            return true;
+    }
+
+        return false;
+}
+
+bool corner_detector_fast::checkMaxLenSeqPix(std::vector<int> seq, int N)
+{
+    int countMax = 1;
+    int count = 1;
+
+    for (size_t k = 1; k < seq.size(); k++)
+    {
+        if (seq[k] == seq[k - 1])
+            count++;
+        else
+            count = 1;
+
+        if (count > countMax)
+            countMax = count;
+    }
+
+    if (countMax >= N)
+        return true;
+    else
+        return false;
+}
+
+void corner_detector_fast::detect(cv::InputArray _image, CV_OUT std::vector<cv::KeyPoint>& keypoints, cv::InputArray /*mask = cv::noArray()*/)
 {
     keypoints.clear();
-    // \todo implement FAST with minimal LOCs(lines of code), but keep code readable.
+    int t = 15;
+    int N = 11;
+    cv::Mat image = _image.getMat();
+    _image.getMat().copyTo(image);
+    cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+    cv::GaussianBlur(image, image, cv::Size(5, 5), 0, 0);
+    cv::copyMakeBorder(image, image, radius, radius, radius, radius, cv::BORDER_REPLICATE);
+
+    for (int i = 0; i < image.rows; i++)
+    {
+        for (int j = 0; j < image.cols; j++)
+        {
+            if (checkPixel(image, i, j, N, t))
+                keypoints.emplace_back(cv::Point(j, i), radius + 3);
+        }
+    }
 }
 
 void corner_detector_fast::compute(cv::InputArray, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors)
@@ -46,4 +125,5 @@ void corner_detector_fast::detectAndCompute(cv::InputArray, cv::InputArray, std:
 {
     // \todo implement me
 }
+
 } // namespace cvlib
