@@ -62,11 +62,10 @@ bool corner_detector_fast::checkMaxLenSeqPix(std::vector<int> seq, int N)
 {
     int countMax = 1;
     int count = 1;
-    size_t size = seq.size();
 
-    for (size_t k = 1; k < 2*size - 2; k++)
+    for (size_t k = 1; k < seq.size(); k++)
     {
-        if (seq[k%size] == seq[(k - 1)%size])
+        if (seq[k] == seq[k - 1])
             count++;
         else
             count = 1;
@@ -74,7 +73,6 @@ bool corner_detector_fast::checkMaxLenSeqPix(std::vector<int> seq, int N)
         if (count > countMax)
             countMax = count;
     }
-
 
     if (countMax >= N)
         return true;
