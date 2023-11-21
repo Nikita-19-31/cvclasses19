@@ -64,7 +64,7 @@ class corner_detector_fast : public cv::Feature2D
     virtual void detect(cv::InputArray _image, CV_OUT std::vector<cv::KeyPoint>& keypoints, cv::InputArray mask = cv::noArray()) override;
 
     /// \see Feature2d::compute
-    virtual void compute(cv::InputArray image, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors) override;
+    virtual void compute(cv::InputArray _image, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors) override;
 
     /// \see Feature2d::detectAndCompute
     virtual void detectAndCompute(cv::InputArray image, cv::InputArray mask, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors,
@@ -78,6 +78,7 @@ class corner_detector_fast : public cv::Feature2D
 
     bool checkPixel(cv::Mat& image, int i, int j, int N, int t);
     bool checkMaxLenSeqPix(std::vector<int> seq, int N);
+    void generateNormPoints(int s, int len_desc);
 
     std::vector<cv::Point> _pixelsAround = {
         cv::Point(0, -3), cv::Point(1, -3) , cv::Point(2, -2) , cv::Point(3, -1) ,
@@ -89,6 +90,7 @@ class corner_detector_fast : public cv::Feature2D
     std::vector<int>  _initialVerify = {1, 5, 9, 13};
     std::vector<int>  _secondaryVerify = {2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15, 16};
     int radius = 3;
+    std::vector<cv::Point2f> _pairPixels;
 
 };
 
