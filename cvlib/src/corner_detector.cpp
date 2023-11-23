@@ -126,7 +126,6 @@ void corner_detector_fast::detect(cv::InputArray _image, CV_OUT std::vector<cv::
 void corner_detector_fast::compute(cv::InputArray _image, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors)
 {
 
-    _pairPixels.clear();
     cv::Mat image;
     _image.getMat().copyTo(image);
     cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
@@ -134,7 +133,12 @@ void corner_detector_fast::compute(cv::InputArray _image, std::vector<cv::KeyPoi
     //Бинарный дескриптор BRIEF
     const int s = 25; //Размер окрестности особой точки SxS
     const int desc_length = 16;
-    generateNormPoints(s, desc_length * 16); //Генерация пар пикселей
+
+    if (_pairPixels.empty())
+    {
+        generateNormPoints(s, desc_length * 16); //Генерация пар пикселей
+    }
+
     descriptors.create(static_cast<int>(keypoints.size()), desc_length, CV_16U);
     auto desc_mat = descriptors.getMat();
     desc_mat.setTo(0);
