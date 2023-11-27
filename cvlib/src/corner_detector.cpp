@@ -24,7 +24,6 @@ bool corner_detector_fast::checkPixel(cv::Mat &image, int i, int j, int N, int t
 
     for (auto firstIndex : _initialVerify)
     {
-
         if (image.at<uchar>(cv::Point(j, i) + _pixelsAround[firstIndex - 1]) > image.at<uchar>(i, j) + t)
         {
             count_white++;
@@ -113,9 +112,9 @@ void corner_detector_fast::detect(cv::InputArray _image, CV_OUT std::vector<cv::
     cv::GaussianBlur(image, image, cv::Size(5, 5), 0, 0);
     cv::copyMakeBorder(image, image, radius, radius, radius, radius, cv::BORDER_REPLICATE);
 
-    for (int i = 0; i < image.rows; i++)
+    for (int i = radius; i < image.rows - radius; i++)
     {
-        for (int j = 0; j < image.cols; j++)
+        for (int j = radius; j < image.cols - radius; j++)
         {
             if (checkPixel(image, i, j, N, t))
                 keypoints.emplace_back(cv::Point(j, i), radius + 3);
@@ -125,7 +124,6 @@ void corner_detector_fast::detect(cv::InputArray _image, CV_OUT std::vector<cv::
 
 void corner_detector_fast::compute(cv::InputArray _image, std::vector<cv::KeyPoint>& keypoints, cv::OutputArray descriptors)
 {
-
     cv::Mat image;
     _image.getMat().copyTo(image);
     cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
@@ -148,6 +146,9 @@ void corner_detector_fast::compute(cv::InputArray _image, std::vector<cv::KeyPoi
 
     for (auto featPoint : keypoints)
     {
+        featPoint.pt.x += half_s;
+        featPoint.pt.y += half_s;
+
         int indx = 0;
         for (int i = 0; i < desc_length; i++)
         {
