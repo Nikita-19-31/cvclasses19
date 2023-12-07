@@ -134,6 +134,7 @@ class descriptor_matcher : public cv::DescriptorMatcher
         }
         return copy;
     }
+    int distance(const cv::Mat &q_desc, const cv::Mat &t_desc);
 
     private:
     float ratio_;
